@@ -115,8 +115,12 @@ def _search_record(name, bdaddr):
     if val.returncode != 0:
         raise SDPException("sdptool search returned %i" % val.returncode)
 
-    # Strip out first line that's not XML
-    xml_str = b'\n'.join(val.stdout.splitlines()[1:])
+    # Strip out lines that are not XML
+    xml_str = b''
+    for line in val.stdout.splitlines():
+        if not line or (line[0] != ord('<') and line[0] != ord('\t')):
+            continue
+        xml_str += line
 
     serv_count = xml_str.count(b'<record>')
     if serv_count < 1:
